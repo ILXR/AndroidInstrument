@@ -1,13 +1,11 @@
 package com.example.instrument.activity;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.widget.AdapterView;
 import android.widget.GridView;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.instrument.R;
 import com.example.instrument.bean.InstrumentItem;
@@ -26,14 +24,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Instance = this;
 
-        GridView instrumentMenu = (GridView) findViewById(R.id.instrumentMenu);
+        GridView instrumentMenu = findViewById(R.id.instrumentMenu);
         ArrayList<InstrumentItem> items = new ArrayList<>();
 
         // TODO 乐器列表
-        items.add(new InstrumentItem("Guitar1", R.mipmap.guitar_icon, GuitarActivity.class));
-        items.add(new InstrumentItem("Guitar2", R.mipmap.guitar_icon, GuitarActivity.class));
-        items.add(new InstrumentItem("Guitar3", R.mipmap.guitar_icon, GuitarActivity.class));
-        items.add(new InstrumentItem("Guitar4", R.mipmap.guitar_icon, GuitarActivity.class));
+        items.add(new InstrumentItem("Guitar", R.mipmap.guitar_icon, GuitarActivity.class));
+        //items.add(new InstrumentItem("Guitar2", R.mipmap.guitar_icon, GuitarActivity.class));
+        //items.add(new InstrumentItem("Guitar3", R.mipmap.guitar_icon, GuitarActivity.class));
+        //items.add(new InstrumentItem("Guitar4", R.mipmap.guitar_icon, GuitarActivity.class));
 
         MyAdapter<InstrumentItem> myAdapter = new MyAdapter(items, R.layout.item_instrument) {
             @Override

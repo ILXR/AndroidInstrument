@@ -18,7 +18,8 @@
         <activity
             android:name=".activity.GuitarActivity"
             android:screenOrientation="sensorLandscape"
-            android:configChanges="orientation|keyboardHidden">
+            android:configChanges="orientation|keyboardHidden"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
         </activity>
     </application>
 

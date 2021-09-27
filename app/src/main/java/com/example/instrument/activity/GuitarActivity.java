@@ -37,7 +37,6 @@ public class GuitarActivity extends Activity {
 
     private void playGuitar(View layout) {
         int id = layout.getId();
-        Log.i(TAG, "play guitar : " + id);
         ImageView img = layout.findViewById(image_id);
         if (img != null) {
             Animation animation = AnimationUtils.loadAnimation(this, R.anim.string_scale);
@@ -96,7 +95,6 @@ public class GuitarActivity extends Activity {
                 float x = event.getX(i), y = event.getY(i);
                 for (int j = 0; j < string_num; j++) {
                     if (layoutRect.get(j).contains((int) x, (int) y)) {
-                        Log.i(TAG, "onTouchEvent: " + i);
                         if (!touchFlag.get(j)) {
                             playGuitar(j);
                         }
@@ -121,7 +119,7 @@ public class GuitarActivity extends Activity {
             ImageView img = new ImageView(this);
             img.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 5 + i * 2));
             img.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            img.setImageResource(R.mipmap.string);
+            img.setImageResource(R.drawable.string);
             img.setId(image_id);
 
             layout.addView(img);

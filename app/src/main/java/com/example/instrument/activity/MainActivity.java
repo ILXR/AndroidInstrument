@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
         Log.i(TAG, "onOptionsItemSelected: " + item.getTitle());
         String title = item.getTitle().toString();
         if (title.equals(getString(R.string.menu_bluetooth))) {
-            Intent intent = new Intent(this, GuitarActivity.class);
+            Intent intent = new Intent(this, BlueToothActivity.class);
             startActivity(intent);
         }
         return super.onOptionsItemSelected(item);

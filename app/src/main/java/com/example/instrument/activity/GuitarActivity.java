@@ -34,8 +34,13 @@ public class GuitarActivity extends Activity {
     private final Vector<Rect>    layoutRect      = new Vector<>();
     private final Vector<Boolean> touchFlag       = new Vector<>();
 
+    private static GuitarActivity _INSTANCE;
 
-    private void playGuitar(View layout) {
+    public static GuitarActivity getInstance() {
+        return _INSTANCE;
+    }
+
+    private void playGuitar(View layout, float volume) {
         int id = layout.getId();
         ImageView img = layout.findViewById(image_id);
         if (img != null) {
@@ -43,20 +48,28 @@ public class GuitarActivity extends Activity {
             animation.setDuration(1000);
             animation.setInterpolator(new DecelerateInterpolator());
             img.startAnimation(animation);
-            soundPoolHelper.playSounds(id);
+            soundPoolHelper.playSounds(id, volume);
         }
     }
 
-    private void playGuitar(int id) {
+    public void playGuitar(int id) {
         View layout = guitarLayouts.get(id);
         if (layout != null) {
-            playGuitar(layout);
+            layout.post(() -> playGuitar(layout, 1f));
+        }
+    }
+
+    public void playGuitar(int id, float volume) {
+        View layout = guitarLayouts.get(id);
+        if (layout != null) {
+            layout.post(() -> playGuitar(layout, volume));
         }
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        _INSTANCE = this;
         setContentView(R.layout.activity_instrument);
         soundPoolHelper.loadSounds(guitarSounds);
         initLayout();

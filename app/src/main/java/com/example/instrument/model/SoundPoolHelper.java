@@ -9,7 +9,7 @@ import java.util.HashMap;
 public class SoundPoolHelper {
     private static final String TAG      = "SoundPoolHelper";
     private final static int    priority = 1;
-    private final static float  volumn   = 1f;
+    private final static float  volume   = 1f;
     private final static float  rate     = 1f;
     private final static int    loop     = 0;
 
@@ -49,10 +49,10 @@ public class SoundPoolHelper {
         }
     }
 
-    public boolean playSounds(int index) {
+    public boolean playSounds(int index, float volume) {
         Integer id = soundMap.get(index);
         if (id != null) {
-            soundPool.play(id, volumn, volumn, priority, loop, rate);
+            soundPool.play(id, volume, volume, priority, loop, rate);
             return true;
         } else {
             return false;

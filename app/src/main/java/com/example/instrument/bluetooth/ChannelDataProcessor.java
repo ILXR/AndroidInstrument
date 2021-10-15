@@ -1,66 +1,69 @@
 package com.example.instrument.bluetooth;
 
+import com.example.instrument.activity.GuitarActivity;
+
 import java.util.ArrayDeque;
-import java.util.ArrayList;
+import java.util.Deque;
 
 public class ChannelDataProcessor {
     private static final String TAG = "ChannelDataProcessor";
+    private final        int    channelId;
 
     // algorithm params
-    private static final Double  startActionThreshold = 0.125d;
+    // TODO 需要修改参数
+    private static final Double  startActionThreshold = 0.12d;
+    private static final Double  maxVolumeValue       = 0.30d;
+    /**
+     * 一次动作的最小数据量
+     */
     private static final Integer minActionSize        = 20;
-    private static final int     rollingMeanSize      = 10;
-    private static final int     initSize             = 100;
+    /**
+     * 一段时间内数据的极差小于该阈值，就可以作为baseline
+     */
+    private static final double  stableThreshold      = 0.08d;
+    private static final int     rollingMeanSize      = 5;
+    private static final int     initSize             = 120;
 
-    private       Double             meanValue;
-    private final ArrayDeque<Double> cacheQueue;
-    private       ArrayList<Double>  initArray;
+    private final Deque<Double> cacheQueue;
+    private final Deque<Double> baselineQue;
+    private       Double        meanValue;
+    private       boolean       hasInit;
+    private       boolean       inAction;
+    private       int           actionSize;
+    private       Double        maxActionValue;
+    private       Double        baseLine;
 
-    private boolean startRecordValue;
-    private boolean hasInit;
-    private boolean inAction;
-    private boolean actionValid;
-    private int     actionSize;
-    private Double  maxActionValue;
-    private Double  baseLine;
-
-    public ChannelDataProcessor() {
+    public ChannelDataProcessor(int id) {
         meanValue = 0d;
         actionSize = 0;
         maxActionValue = 0d;
         cacheQueue = new ArrayDeque<>();
-        initArray = new ArrayList<>();
+        baselineQue = new ArrayDeque<>();
         inAction = false;
         hasInit = false;
-        actionValid = false;
-        startRecordValue = false;
+        channelId = id;
     }
 
     public void addData(Double data) {
-        if (!hasInit) {
-            initArray.add(data);
-            if (initArray.size() >= initSize) {
-                hasInit = true;
-                Double sum = 0d;
-                for (Double dou : initArray) {
-                    sum += dou;
-                }
-                baseLine = sum / initArray.size();
-                initArray = null;
+        baselineQue.offerLast(data);
+        if (baselineQue.size() > initSize) {
+            baselineQue.pollFirst();
+            double sum = 0d, max = Double.MIN_VALUE, min = Double.MAX_VALUE;
+            for (Double item : baselineQue) {
+                max = Math.max(max, item);
+                min = Math.min(min, item);
+                sum += item;
             }
-            return;
+            if (max - min <= stableThreshold) {
+                hasInit = true;
+                baseLine = sum / initSize;
+            }
         }
-        data -= baseLine;
-        addDataToQueue(data);
-        addDataToList();
-    }
-
-    public boolean isInAction() {
-        return inAction;
-    }
-
-    public boolean isActionValid() {
-        return actionValid;
+        if (hasInit) {
+            data -= baseLine;
+            addDataToQueue(data);
+            addDataToList();
+        }
     }
 
     private void addDataToQueue(Double data) {
@@ -77,35 +80,25 @@ public class ChannelDataProcessor {
     }
 
     private void addDataToList() {
-        if (startRecordValue) {
-            maxActionValue = Math.max(maxActionValue, meanValue);
-        }
         if (inAction) {
             actionSize++;
-        }
-        if (meanValue > startActionThreshold && !inAction)
-            inAction = true;
-        if (meanValue < startActionThreshold && inAction) {
-            inAction = false;
-            if (actionSize >= minActionSize) {
-                actionValid = true;
+            maxActionValue = Math.max(maxActionValue, meanValue);
+            if (meanValue < (maxActionValue - startActionThreshold) / 3 && actionSize >= minActionSize) {
+                // TODO 弦松开发声
+                double volume = Math.min(0.5d, (maxActionValue - startActionThreshold) / (maxVolumeValue - startActionThreshold) / 2);
+                float vol = 0.5f + Float.parseFloat(Double.toString(volume));
+                GuitarActivity.getInstance().playGuitar(this.channelId, vol);
             }
-        }
-    }
-
-    public void startRecord() {
-        startRecordValue = true;
-    }
-
-    public Double getMaxActionValue() {
-        return maxActionValue;
+            if (meanValue <= startActionThreshold) { // action end
+                clearState();
+            }
+        } else if (meanValue > startActionThreshold) // action start
+            inAction = true;
     }
 
     public void clearState() {
         actionSize = 0;
         maxActionValue = 0d;
         inAction = false;
-        actionValid = false;
-        startRecordValue = false;
     }
 }

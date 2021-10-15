@@ -30,6 +30,7 @@ import androidx.fragment.app.Fragment;
 import com.example.instrument.R;
 import com.example.instrument.bluetooth.BlueToothManager;
 import com.example.instrument.util.EpicParams;
+import com.example.instrument.util.MyApplication;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -208,7 +209,7 @@ public class DeviceListFragment extends Fragment {
     }
 
     public void toast(String str) {
-        Toast.makeText(getContext(), str, Toast.LENGTH_SHORT).show();
+        MyApplication.getInstance().toast(str);
     }
 
     /**

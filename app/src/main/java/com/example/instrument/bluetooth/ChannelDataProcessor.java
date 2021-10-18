@@ -1,5 +1,7 @@
 package com.example.instrument.bluetooth;
 
+import android.util.Log;
+
 import com.example.instrument.activity.GuitarActivity;
 
 import java.util.ArrayDeque;
@@ -11,18 +13,18 @@ public class ChannelDataProcessor {
 
     // algorithm params
     // TODO 需要修改参数
-    private static final Double  startActionThreshold = 0.12d;
-    private static final Double  maxVolumeValue       = 0.30d;
+    private static final Double  startActionThreshold = 0.05d;
+    private static final Double  maxVolumeValue       = 0.40d;
     /**
      * 一次动作的最小数据量
      */
-    private static final Integer minActionSize        = 20;
+    private static final Integer minActionSize        = 15;
     /**
      * 一段时间内数据的极差小于该阈值，就可以作为baseline
      */
-    private static final double  stableThreshold      = 0.08d;
+    private static final double  stableThreshold      = 0.03d;
     private static final int     rollingMeanSize      = 5;
-    private static final int     initSize             = 120;
+    private static final int     initSize             = 80;
 
     private final Deque<Double> cacheQueue;
     private final Deque<Double> baselineQue;
@@ -83,8 +85,9 @@ public class ChannelDataProcessor {
         if (inAction) {
             actionSize++;
             maxActionValue = Math.max(maxActionValue, meanValue);
-            if (meanValue < (maxActionValue - startActionThreshold) / 3 && actionSize >= minActionSize) {
+            if (meanValue < (maxActionValue - startActionThreshold)*2 / 3 && actionSize >= minActionSize) {
                 // TODO 弦松开发声
+                Log.w(TAG, "addDataToList: 检测到" + this.channelId);
                 double volume = Math.min(0.5d, (maxActionValue - startActionThreshold) / (maxVolumeValue - startActionThreshold) / 2);
                 float vol = 0.5f + Float.parseFloat(Double.toString(volume));
                 GuitarActivity.getInstance().playGuitar(this.channelId, vol);
